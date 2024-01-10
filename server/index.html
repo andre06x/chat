@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.IO Chat</title>
+  </head>
+  <body>
+    <div id="chat">
+      <select id="roomSelect"></select>
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <h4 id="usuario"></h4>
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script
+      src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+      integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // Connect to the Socket.IO server
+      const socket = io('http://localhost:3000');
+
+      socket.on('connect', () => {
+        console.log('Socket.IO Connection Opened');
+
+        const roomSelect = document.getElementById('roomSelect');
+        const roomName = prompt('Enter room name:');
+        const usuario = prompt('Enter user:');
+
+        document.getElementById('usuario').innerHTML = usuario;
+        roomSelect.add(new Option(roomName, roomName));
+
+        socket.emit('joinRoom', roomName);
+      });
+
+      socket.on('roomMessages', (messages) => {
+        displayRoomMessages(messages);
+      });
+
+      socket.on('newMessage', (message) => {
+        displayNewMessage(message);
+      });
+
+      function sendMessage() {
+        const room = document.getElementById('roomSelect').value;
+        const content = document.getElementById('messageInput').value;
+
+        if (room && content) {
+          const message = {
+            user: document.getElementById('usuario').innerHTML,
+            content,
+          };
+          displayNewMessage(message); // Adicione a mensagem ao histórico local
+          socket.emit('sendMessage', { room, message });
+          document.getElementById('messageInput').value = '';
+        }
+      }
+
+      function displayRoomMessages(messages) {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = messages.map(formatMessage).join('');
+      }
+
+      function displayNewMessage(message) {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += formatMessage(message);
+      }
+
+      function formatMessage(message) {
+        return `<p><strong>${message.user}:</strong> ${message.content}</p>`;
+      }
+
+      // Add room selection options dynamically
+    </script>
+  </body>
+</html>
