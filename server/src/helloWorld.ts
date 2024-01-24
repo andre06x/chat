@@ -13,13 +13,18 @@ export const t = initTRPC.create();
 
 export const appRouter = t.router({
   // Create procedure at path 'greeting'
-  greeting: t.procedure.query((opts) => `Hello 123`),
+
+  greeting: t.procedure.query(() => {
+    const data = { status: 200, name: 'chat' };
+    return data;
+  }),
 
   updateGreeting: t.procedure
-    .input(z.object({ newName: z.string() }))
-    .mutation(async (opts) => {
-      // Lógica de mutação aqui, como atualizar o nome
-      return `Name updated to ${opts.input.newName}`;
+    .input(z.object({ name: z.string() }))
+    .query(async (opts) => {
+      // Lógica para processar o nome, por exemplo, gerar uma mensagem de saudação
+      const greeting = `Olá, ${opts.input.name}!`;
+      return greeting;
     }),
 });
 
