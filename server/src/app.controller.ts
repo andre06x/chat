@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { appRouter } from './helloWorld';
 
@@ -7,10 +7,9 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post()
-  async hello() {
+  async greet(@Body() payload: { name: string }) {
     const caller = appRouter.createCaller({});
-    const result = await caller.updateGreeting(); // Substitua 'someUserId' pelo valor desejado
-    return result;
+    return await caller.updateGreeting(payload);
   }
 
   @Get()
