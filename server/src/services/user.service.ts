@@ -23,4 +23,18 @@ export class UserService {
   async findOne(id: string) {
     return this.messageModel.find({ _id: id }).exec();
   }
+
+  async auth(email: string, password: string) {
+    const user = await this.messageModel.findOne({ email }).exec();
+    if (!user) {
+      return { error: 'Email não encontrado' };
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return { error: 'Senha não confere' };
+    }
+
+    return user;
+  }
 }
