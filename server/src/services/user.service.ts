@@ -1,5 +1,5 @@
 // messages/messages.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 //import { Message } from './message.interface';
@@ -27,14 +27,25 @@ export class UserService {
   async auth(email: string, password: string) {
     const user = await this.messageModel.findOne({ email }).exec();
     if (!user) {
-      return { error: 'Email não encontrado' };
+      throw new HttpException(
+        { error: 'Email não encontrado' },
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return { error: 'Senha não confere' };
+      throw new HttpException(
+        { error: 'Senha não confere' },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
-    return user;
+    const userFull = {
+      email: user.email,
+      name: user.name,
+      _id: user._id,
+    };
+    return userFull;
   }
 }
