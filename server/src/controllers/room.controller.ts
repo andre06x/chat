@@ -46,9 +46,9 @@ export class RoomController {
   ) {
     return this.roomService.updatedRequest(id, idRoom, idAprove);
   }
-  /*
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.roomService.findOne(id);
-  }*/
+
+  @Post('search')
+  async searchRoom(@Body('room') room: string) {
+    return this.roomService.searchRoom(room);
+  }
 }
