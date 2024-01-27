@@ -24,4 +24,9 @@ export class UserController {
   async findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
+
+  @Post('auth')
+  async auth(@Body('email') email: string, @Body('password') password: string) {
+    return this.userService.auth(email, password);
+  }
 }
