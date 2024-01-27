@@ -150,8 +150,15 @@ export class RoomService {
       throw err;
     }
   }
-  /*
-  async findOne(id: string) {
-    return this.messageModel.find({ _id: id }).exec();
-  }*/
+
+  async searchRoom(room) {
+    const regex = new RegExp(room, 'i');
+    try {
+      return this.roomModel
+        .find({ name: { $regex: regex } }, { _id: 1, name: 1 })
+        .exec();
+    } catch (err) {
+      throw err;
+    }
+  }
 }
