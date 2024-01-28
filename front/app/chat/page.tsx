@@ -1,23 +1,20 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
 import { api } from "../api";
-import Select from "react-select/async";
+import { SidebarMensagens } from "@/components/SidebarMensagens/SidebarMensagens";
+import { SidebarGrupos } from "@/components/SidebarGrupos/SidebarGrupos";
+import { Mensagens } from "@/components/Mensagens/Mensagenx";
+import { RequestRoom } from "@/components/RequestsRooms/RequestsRooms";
 
 const ChatComponent = () => {
   const [sideBar, setSideBar] = useState("mensagens");
   const [roomSearch, setRoomSearch] = useState({ label: "", value: "" });
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
-  // const rooms = ["Sala 1", "Sala 2", "Sala 3"];
-
-  const messages = [
-    { user: "Usuário 1", text: "Oi, tudo bem?" },
-    { user: "Usuário 2", text: "Sim, e você?" },
-  ];
 
   useEffect(() => {
     (async () => {
-      const id = JSON.parse(localStorage.getItem("user"))._id;
+      const id = JSON.parse(localStorage.getItem("user") || "")._id;
       const response = await api.post("/room/last-messages", { id });
       console.log(response.data);
       setRooms(response.data);
@@ -26,8 +23,8 @@ const ChatComponent = () => {
 
   const criarSala = async () => {
     try {
-      const userAdmId = JSON.parse(localStorage.getItem("user"))._id;
-      const name = document.querySelector("#nome-sala").value;
+      const userAdmId = JSON.parse(localStorage.getItem("user") || "")._id;
+      const name = document.querySelector("#nome-sala")?.value;
 
       const response = await api.post("/room", { userAdmId, name });
       setRooms([...rooms, response.data]);
@@ -35,25 +32,6 @@ const ChatComponent = () => {
     } catch (err) {
       console.log(err);
     }
-  };
-
-  const requisitarSala = async () => {
-    try {
-      const id = JSON.parse(localStorage.getItem("user"))._id;
-      const idRoom = roomSearch.value;
-
-      const response = await api.post("/room/request-room", { id, idRoom });
-      alert("Requisição enviada");
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const loadOptions = async (inputValue) => {
-    const response = await api.post("/room/search", { room: inputValue });
-
-    const options = response.data.map((item) => ({ value: item._id, label: item.name }));
-    return options;
   };
 
   return (
@@ -82,54 +60,23 @@ const ChatComponent = () => {
             }
             className="bg-slate-400"
           >
-            Grupos
+            Salas
           </button>
         </div>
         {sideBar === "mensagens" ? (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {rooms.map((room, index) => (
-              <li
-                key={room._id}
-                onClick={() => setSelectedRoom(room)}
-                style={{
-                  cursor: "pointer",
-                  padding: "8px",
-                  margin: "5px 0",
-                  backgroundColor: selectedRoom === room ? "#ddd" : "inherit",
-                }}
-              >
-                <span>{room.name}</span>
-                <br />
-                <span>
-                  {" "}
-                  {room.messages[room.messages.length - 1]?.name}:{" "}
-                  {room.messages[room.messages.length - 1]?.content}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <SidebarMensagens
+            rooms={rooms}
+            selectedRoom={selectedRoom}
+            setSelectedRoom={setSelectedRoom}
+          />
+        ) : selectedRoom === null ? (
+          <SidebarGrupos
+            criarSala={criarSala}
+            setRoomSearch={setRoomSearch}
+            roomSearch={roomSearch}
+          />
         ) : (
-          <div className="flex flex-col">
-            <div className="flex">
-              <label htmlFor="">Criar</label>
-              <input type="text" id="nome-sala" />
-              <button onClick={() => criarSala()} className="bg-slate-400">
-                Criar
-              </button>
-            </div>
-
-            <div className="flex">
-              <label htmlFor="">Requisitar</label>
-              <Select
-                loadOptions={loadOptions}
-                onChange={(selectedOption) => setRoomSearch(selectedOption)}
-                isClearable
-              />{" "}
-              <button onClick={() => requisitarSala()} className="bg-slate-400">
-                Requisitar
-              </button>
-            </div>
-          </div>
+          <RequestRoom selectedRoom={selectedRoom} />
         )}
       </div>
       <div
@@ -143,27 +90,7 @@ const ChatComponent = () => {
       >
         <h2>Conversas</h2>
         {selectedRoom ? (
-          <div
-            className="position-relative flex flex-col justify-between"
-            style={{ height: "100% " }}
-          >
-            <div className="">
-              <h3>{`Sala: ${selectedRoom.name}`}</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {selectedRoom.messages.map((message, index) => (
-                  <li key={index} style={{ marginBottom: "10px" }}>
-                    <strong>{message.name}:</strong> {message.content}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="p-3 border h-12 rounded-md bg-[#F0F2F5]">
-              <div className="p-3 flex">
-                <input className="flex-1 h-7 mr-4" type="text" />
-                <button className="button bg-[#54656F] rounded p-1">Send</button>
-              </div>
-            </div>
-          </div>
+          <Mensagens selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
         ) : (
           <p>Selecione uma sala para ver as conversas.</p>
         )}
