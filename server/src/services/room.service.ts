@@ -18,9 +18,10 @@ export class RoomService {
     console.log(user);
     const requests = [
       {
-        user: user[0],
-        // status: { type: Boolean, default: true },
-        // show: { type: Boolean, default: false },
+        _idUser: user[0]._id,
+        name: user[0].name,
+        email: user[0].email,
+
         timestamp: { type: Date, default: Date.now },
       },
     ];
@@ -32,13 +33,13 @@ export class RoomService {
     return createdMessage.save();
   }
 
-  async lastMessages(id) {
+  async lastMessages(id: string) {
     try {
       const userId = new mongoose.Types.ObjectId(id);
       const ss = await this.roomModel.aggregate([
         {
           $match: {
-            'requests.user._id': userId,
+            'requests._idUser': userId,
             'requests.status': true,
           },
         },
@@ -46,17 +47,32 @@ export class RoomService {
           $project: {
             _id: 1,
             name: 1,
-            messages: { $slice: ['$messages', 50] }, // Limita a 50 mensagens por sala
+            requests: 1,
+            messages: { $slice: ['$messages', 50] },
           },
         },
       ]);
-      return ss;
+
+      return ss.filter((room) => {
+        const approvedRequests = room.requests.some((request) => {
+          console.log('id ', request._idUser.equals(userId));
+          console.log('---', request._idUser, '---', userId);
+          return request._idUser.equals(userId) && request.status === true;
+        });
+        return approvedRequests;
+      });
+      // return ss;
     } catch (err) {
       console.error(err);
       throw err;
     }
   }
-
+  filterRequestsForUser(room, userId) {
+    const filteredRequests = room.requests.filter((request) => {
+      return request.user._id === userId && request.status === true;
+    });
+    return filteredRequests;
+  }
   async sendMenssage(content, id, idRoom) {
     const user = await this.userModel.find({ _id: id }).exec();
 
@@ -81,7 +97,10 @@ export class RoomService {
     const user = await this.userModel.find({ _id: idUser }).exec();
 
     const novoRequest = {
-      user: user[0],
+      _idUser: user[0]._id,
+      name: user[0].name,
+      email: user[0].email,
+
       status: false,
       show: true,
     };
@@ -134,7 +153,7 @@ export class RoomService {
         {
           _id: new mongoose.Types.ObjectId(roomIdS),
           userAdmId: new mongoose.Types.ObjectId(userId),
-          'requests.user._id': new mongoose.Types.ObjectId(idAproveS),
+          'requests._idUser': new mongoose.Types.ObjectId(idAproveS),
         },
         {
           $set: {
