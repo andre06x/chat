@@ -20,11 +20,9 @@ export const RoomSchema = new mongoose.Schema({
   ],
   requests: [
     {
-      user: {
-        _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        name: String,
-        email: String,
-      },
+      _idUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      name: String,
+      email: String,
       status: {
         type: Boolean,
         required: false,
