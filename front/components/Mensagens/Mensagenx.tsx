@@ -2,7 +2,7 @@ export const Mensagens = ({ selectedRoom, setSelectedRoom }) => {
   return (
     <div
       className="position-relative flex flex-col justify-between"
-      style={{ height: "100% " }}
+      style={{ height: "95% " }}
     >
       <div className="">
         <div className="flex justify-between">
@@ -22,10 +22,10 @@ export const Mensagens = ({ selectedRoom, setSelectedRoom }) => {
           ))}
         </ul>
       </div>
-      <div className="p-3 border h-12 rounded-md bg-[#F0F2F5]">
-        <div className="p-3 flex">
-          <input className="flex-1 h-7 mr-4" type="text" />
-          <button className="button bg-[#54656F] rounded p-1">Send</button>
+      <div className="rounded border h-12 rounded-md bg-[#F0F2F5]">
+        <div className="p-3 flex rounded">
+          <input className="flex-1 h-7 mr-4 rounded" type="text" />
+          <button className="button bg-slate-400 text-white rounded p-1">Send</button>
         </div>
       </div>
     </div>
