@@ -75,8 +75,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private handleMessage(message: Message) {
-    // Your tRPC logic here
-    // For example, call your tRPC procedures with the received message
     t.procedure
       .input(
         z.object({
@@ -85,11 +83,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }),
       )
       .mutation((opts) => {
-        // Handle the tRPC mutation
         console.log(
           `Received message from ${opts.input.user}: ${opts.input.content}`,
         );
-        // Add your logic to save the message to the database, etc.
         return true;
       });
   }
