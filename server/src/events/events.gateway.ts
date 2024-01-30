@@ -65,7 +65,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { id, content, idRoom }: { id: string; idRoom: string; content: string },
     @ConnectedSocket() client: Socket,
   ) {
-    // Find the room
     const targetRoom = await this.roomService.sendMenssage(content, id, idRoom);
     if (targetRoom) {
       console.log(targetRoom);
