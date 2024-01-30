@@ -12,6 +12,7 @@ import { Observable, of } from 'rxjs';
 import { initTRPC } from '@trpc/server';
 import { observable } from '@trpc/server/observable';
 import { z } from 'zod';
+import { RoomService } from 'src/services/room.service';
 
 interface Message {
   user: string;
@@ -31,6 +32,8 @@ const t = initTRPC.create();
   },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly roomService: RoomService) {}
+
   @WebSocketServer() server: Server;
 
   private rooms: Room[] = [];
@@ -45,42 +48,29 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('joinRoom')
   joinRoom(
-    @MessageBody() roomName: string,
+    @MessageBody() roomId: string,
     @ConnectedSocket() client: Socket,
   ): Observable<string> {
-    client.join(roomName);
+    console.log('chegou');
+    client.join(roomId);
 
-    // Check if the room already exists
-    let room = this.rooms.find((r) => r.name === roomName);
-    if (!room) {
-      // If not, create a new room
-      room = { name: roomName, messages: [] };
-      this.rooms.push(room);
-    }
+    client.emit('roomMessages', roomId);
 
-    // Send existing messages to the client
-    client.emit('roomMessages', room.messages);
-
-    return of(`Joined room: ${roomName}`);
+    return of(`Joined room: ${roomId}`);
   }
 
   @SubscribeMessage('sendMessage')
-  sendMessage(
-    @MessageBody() { room, message }: { room: string; message: Message },
+  async sendMessage(
+    @MessageBody()
+    { id, content, idRoom }: { id: string; idRoom: string; content: string },
     @ConnectedSocket() client: Socket,
-  ): void {
+  ) {
     // Find the room
-    const targetRoom = this.rooms.find((r) => r.name === room);
-
+    const targetRoom = await this.roomService.sendMenssage(content, id, idRoom);
     if (targetRoom) {
-      // Add the message to the room
-      targetRoom.messages.push(message);
-
-      // Broadcast the message to all clients in the room
-      client.to(room).emit('newMessage', message);
-
-      // Use tRPC to handle the message
-      this.handleMessage(message);
+      console.log(targetRoom);
+      client.to(idRoom).emit('newMessage', targetRoom);
+      return JSON.stringify(targetRoom);
     }
   }
 
