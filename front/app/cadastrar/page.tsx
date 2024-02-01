@@ -12,6 +12,7 @@ const Cadastrar = () => {
     try {
       const response = await api.post("/user", data);
       alert("Cadastrado com sucesso! Você será redirecionado");
+      router.push("/login");
     } catch (err) {
       alert(err.response.data.error || err.message);
     }
