@@ -8,19 +8,27 @@ const Cadastrar = () => {
   const { register, handleSubmit, formState } = useForm();
   const router = useRouter();
 
+  async function cadastrar(data: any) {
+    try {
+      const response = await api.post("/user", data);
+      alert("Cadastrado com sucesso! Você será redirecionado");
+    } catch (err) {
+      alert(err.response.data.error || err.message);
+    }
+  }
   return (
     <div className="flex justify-center bg-slate-600 h-screen items-center ">
-      <form className="border p-4 bg-white rounded">
+      <form onSubmit={handleSubmit(cadastrar)} className="border p-4 bg-white rounded">
         <div className="flex flex-col ">
           <input
             type="text"
-            {...register("nome")}
-            placeholder="nome"
+            {...register("name")}
+            placeholder="name"
             className="border m-2 p-1 rounded"
             required
           />
           <input
-            type="text"
+            type="email"
             {...register("email")}
             placeholder="email"
             className="border m-2 p-1 rounded"
