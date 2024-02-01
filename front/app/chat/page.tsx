@@ -44,15 +44,15 @@ const ChatComponent = () => {
     >
       <div
         style={{
-          flex: "30%",
           borderRight: "1px solid #ccc",
           padding: "10px",
           backgroundColor: "#f0f0f0",
           borderTopLeftRadius: 5,
           borderBottomLeftRadius: 5,
         }}
+        className="hidden sm:block"
       >
-        <div className="flex justify-between">
+        <div className="flex justify-between hidden md:block ">
           <h2>Salas</h2>
           <button
             onClick={() =>
@@ -63,21 +63,24 @@ const ChatComponent = () => {
             Salas
           </button>
         </div>
-        {sideBar === "mensagens" ? (
-          <SidebarMensagens
-            rooms={rooms}
-            selectedRoom={selectedRoom}
-            setSelectedRoom={setSelectedRoom}
-          />
-        ) : selectedRoom === null ? (
-          <SidebarGrupos
-            criarSala={criarSala}
-            setRoomSearch={setRoomSearch}
-            roomSearch={roomSearch}
-          />
-        ) : (
-          <RequestRoom selectedRoom={selectedRoom} />
-        )}
+
+        <div className="hidden md:block">
+          {sideBar === "mensagens" ? (
+            <SidebarMensagens
+              rooms={rooms}
+              selectedRoom={selectedRoom}
+              setSelectedRoom={setSelectedRoom}
+            />
+          ) : selectedRoom === null ? (
+            <SidebarGrupos
+              criarSala={criarSala}
+              setRoomSearch={setRoomSearch}
+              roomSearch={roomSearch}
+            />
+          ) : (
+            <RequestRoom selectedRoom={selectedRoom} />
+          )}
+        </div>
       </div>
       <div
         style={{
