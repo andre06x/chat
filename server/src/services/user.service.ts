@@ -10,6 +10,14 @@ export class UserService {
   constructor(@InjectModel('User') private readonly messageModel: any) {}
 
   async createUser(email, password, name) {
+    const user = await this.messageModel.findOne({ email }).exec();
+    if (user) {
+      throw new HttpException(
+        { error: 'Email jácadastrado em nossa base de dados.' },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     password = await bcrypt.hash(password, 10);
 
     const createdMessage = new this.messageModel({ email, password, name });
